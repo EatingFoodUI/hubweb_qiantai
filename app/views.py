@@ -11,7 +11,7 @@ from flask import make_response
 from flask import render_template, send_from_directory
 import os
 # 可增减next[]参数的功能，实现重定向会登录的地方
-
+  
 
 @app.after_request
 def af_request(resp):     
