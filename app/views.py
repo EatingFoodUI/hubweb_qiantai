@@ -46,6 +46,8 @@ def show_photo(filename):
         if filename is None:
             pass
         else:
+            if filename == '2.png':
+                filename = '2.jpg'
             image_data = open(os.path.join('/usr/hubweb_qiantai/app/templates/static/img/', '%s' % filename), "rb").read()
             response = make_response(image_data)
             response.headers['Content-Type'] = 'image/png'
