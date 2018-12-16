@@ -1,6 +1,6 @@
 # from .models import
-from . import app, db
-from .models import User, Essay, ProjectEssay, Project, Member
+from . import app, db, UPLOAD_FOLDER
+from .models import User, Essay, ProjectEssay, Project, Member, Photo
 from flask import request, jsonify, session
 from sqlalchemy import and_
 import datetime
@@ -40,6 +40,7 @@ def index_houtai():
     return send_from_directory('./templates', 'index_houtai.html', as_attachment=False)
 
 
+# 之前存图片的地方
 @app.route('/usr/hubweb_qiantai/app/templates/static/img/<string:filename>', methods=['GET'])
 def show_photo(filename):
     if request.method == 'GET':
@@ -49,6 +50,23 @@ def show_photo(filename):
             if filename == '2.png':
                 filename = '2.jpg'
             image_data = open(os.path.join('/usr/hubweb_qiantai/app/templates/static/img/', '%s' % filename), "rb").read()
+            response = make_response(image_data)
+            response.headers['Content-Type'] = 'image/png'
+            return response
+    else:
+        pass
+
+
+# 存图片的地方
+@app.route('/show_photo/<string:filename>', methods=['GET'])
+def showphoto(filename):
+    if request.method == 'GET':
+        if filename is None:
+            pass
+        else:
+            if filename == '2.png':
+                filename = '2.jpg'
+            image_data = open(os.path.join('/usr/hubweb_qiantai/app/templates/up_photo/', '%s' % filename), "rb").read()
             response = make_response(image_data)
             response.headers['Content-Type'] = 'image/png'
             return response
@@ -208,23 +226,29 @@ def show_project_essay():
 # 添加项目页
 @app.route('/addProject', methods=['GET', 'POST'])
 def add_project():
+    pdb.set_trace()
     if request.method == 'GET':
         return '200'
     if request.method == 'POST':
         projectName = request.json.get('projectName')
         projectMan = request.json.get('projectMan')
         time = request.json.get('time')
+        # 添加文件
 
         # 查询是否已添加过项目(商议是否修改原项目)
         ishas_project = Project.query.filter(
             Project.projectName == projectName).first()
         if ishas_project is None:
+
+            # 添加文件src
             project = Project(projectName=projectName,
                               projectMan=projectMan, time=time)
             db.session.add(project)
             db.session.commit()
             project_id = project.projectNo
             static = 1
+
+            # 添加返回文件src
             return jsonify({'Projectid': project_id, 'static': static})
         else:
             static = 0
@@ -458,4 +482,23 @@ def addMember():
         member.experience = experience
         db.session.commit()
         static = 1
+        return jsonify({'static': static})
+
+
+# 上传文件
+@app.route('/addImg', methods=['OPTIONS', 'POST'])
+def up_picture():
+    img = request.files.get('file')    # 获取上传的文件
+    pdb.set_trace()
+    if img is not None:
+        # photo_name = img.filename
+        file_path = UPLOAD_FOLDER+img.filename
+        img.save(file_path)
+        # photo = Photo(Photo_name=photo_name, Photo_src=file_path)
+        # db.session.add(photo)
+        # db.session.commit()
+        static = 1  
+        return jsonify({'static': static})
+    else:
+        static = 0
         return jsonify({'static': static})

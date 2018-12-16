@@ -167,3 +167,24 @@ class User(UserMixin, object):
         username = self.cur.fetchone()
         return User(username)
 
+
+
+CREATE TABLE `Photo`( 
+    `Photo_no` int(10) NOT NULL AUTO_INCREMENT,
+    `Photo_name` varchar(10) DEFAULT NULL, 
+    `Photo_src` varchar(40) DEFAULT NULL, 
+    PRIMARY KEY(`Photo_no`), 
+    UNIQUE KEY(`Photo_name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `Project` (
+  `projectNo` int(11) NOT NULL AUTO_INCREMENT,
+  `projectName` varchar(30) DEFAULT NULL,
+  `projectMan` varchar(100) DEFAULT NULL,
+  `howmany` int(11) DEFAULT NULL,
+  `time` date DEFAULT NULL,
+  `src` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`projectNo`),
+  UNIQUE KEY `projectName` (`projectName`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 |
+

@@ -20,6 +20,12 @@ login_manager.init_app(app)
 bootstrap = Bootstrap(app)
 CORS(app, supports_credentials=True)
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+# UPLOAD_ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg']) # 允许上传的扩展名
+# UPLOAD_FOLDER_ROOT = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER_PATH = '/usr/hubweb_qiantai/app/templates/up_photo/'    # 上传文件路径
+# UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER_ROOT, UPLOAD_FOLDER_PATH)
+UPLOAD_FOLDER = UPLOAD_FOLDER_PATH
 
 db = SQLAlchemy(app)
 from .models import User, Member, Essay, Project

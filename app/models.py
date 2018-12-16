@@ -227,3 +227,17 @@ class Project(db.Model):
     def __repr__(self):
         return '<Project %r>' % self.projectName
 
+
+# 存图片
+class Photo(db.Model):
+    __tablename__ = 'Photo'
+
+    # 图片序列
+    Photo_no = db.Column(db.Integer, primary_key=True)
+    # 图片名
+    Photo_name = db.Column(db.String(10), unique=True)
+    # src
+    Photo_src = db.Column(db.String(40))
+    
+    def __repr__(self):
+        return '<Project %r>' % self.Photo_name
