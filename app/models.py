@@ -45,6 +45,8 @@ class Member(db.Model):
     software = db.Column(db.String(40))
     # 个人经历
     experience = db.Column(db.String(150))
+    # scr
+    src = db.Column(db.String(50))
 
     def show_all_member_to_json(self):
         # pdb.set_trace()
@@ -52,10 +54,12 @@ class Member(db.Model):
         s1 = s
         if s is not None:
             s1 = s.split(',')
+            s1.pop()
         l0 = self.language
         l1 = l0
         if l0 is not None:
             l1 = l0.split(',')
+            l1.pop()
         json_proEssay = {
             'id': str(self.memberNo),
             'name': self.memberName,
@@ -65,7 +69,8 @@ class Member(db.Model):
                 'language': l1,
                 'software': s1
             },
-            'experience': self.experience
+            'experience': self.experience,
+            'src': self.src
         }
         return json_proEssay
  
@@ -76,8 +81,10 @@ class Member(db.Model):
         l1 = l0
         if s is not None:
             s1 = s.split(',')
+            s1.pop()
         if l0 is not None:
             l1 = l0.split(',')
+            l1.pop()
         json_proEssay = {
             'name': self.memberName,
             'college': self.academy,
@@ -86,7 +93,8 @@ class Member(db.Model):
                 'language': l1,
                 'software': s1
             },
-            'experience': self.experience
+            'experience': self.experience,
+            'src': self.src
         }
         return json_proEssay
 
@@ -115,6 +123,8 @@ class ProjectEssay(db.Model):
     # 文章简介
     pro_EssayTit = db.Column(db.String(20))
     Project = db.relationship('Project', backref=db.backref('ProjectEsssay'))
+    # scr
+    src = db.Column(db.String(50))
 
     # 项目页显示文章
     def proEssay_to_json(self):
@@ -123,7 +133,8 @@ class ProjectEssay(db.Model):
             'content': self.pro_content,
             'id': str(self.pro_essayNo),
             'type': self.pro_type,
-            'EssayTit': self.pro_EssayTit
+            'EssayTit': self.pro_EssayTit,
+            'src': self.src
         }
         return json_proEssay
 
@@ -134,7 +145,8 @@ class ProjectEssay(db.Model):
             'id': str(self.pro_essayNo),
             'title': self.pro_title,
             'content': self.pro_content,
-            'EssayTit': self.pro_EssayTit
+            'EssayTit': self.pro_EssayTit,
+            'src': self.src
         }
         return json_proEssay
     
@@ -149,7 +161,8 @@ class ProjectEssay(db.Model):
             'Projectid': str(self.projectNo),
             'type': self.pro_type,
             'content': self.pro_content,
-            'time': str(self.pro_updateTime)
+            'time': str(self.pro_updateTime),
+            'src': self.src
          }
         return json_proEssay
 
@@ -170,6 +183,8 @@ class Essay(db.Model):
     updatetime = db.Column(db.Date)
     # 文章作者
     author = db.Column(db.String(8))
+    # scr
+    src = db.Column(db.String(50))
 
     # 显示文章转json使用
     def ShowEssay_to_json(self):
@@ -178,7 +193,8 @@ class Essay(db.Model):
         json_project = {
             'id': self.essayNo,
             'title': self.title,
-            'content': Text
+            'content': Text,
+            'src': self.src
         }
         return json_project
     

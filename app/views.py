@@ -10,6 +10,7 @@ import pdb
 from flask import make_response
 from flask import render_template, send_from_directory
 import os
+import time
 # 可增减next[]参数的功能，实现重定向会登录的地方
   
 
@@ -58,7 +59,7 @@ def show_photo(filename):
 
 
 # 存图片的地方
-@app.route('/show_photo/<string:filename>', methods=['GET'])
+@app.route('/usr/hubweb_qiantai/app/templates/up_photo/<string:filename>', methods=['GET'])
 def showphoto(filename):
     if request.method == 'GET':
         if filename is None:
@@ -226,13 +227,29 @@ def show_project_essay():
 # 添加项目页
 @app.route('/addProject', methods=['GET', 'POST'])
 def add_project():
-    pdb.set_trace()
+    # pdb.set_trace()
     if request.method == 'GET':
         return '200'
     if request.method == 'POST':
-        projectName = request.json.get('projectName')
-        projectMan = request.json.get('projectMan')
-        time = request.json.get('time')
+        img = request.files.get('file')    # 获取上传的文件
+        file_path = ''
+        if img is None:
+            file_path = None
+        else:
+            num = len(Project.query.all())
+            filename = str(num+1) + img.filename
+            file_path = UPLOAD_FOLDER+filename
+            img.save(file_path)
+
+        others = request.form['other']
+        others2 = json.loads(others)
+        projectName = others2.get('projectName')
+        projectMan = others2.get('projectMan')
+        time = others2.get('time')
+
+        # projectName = request.json.get('projectName')
+        # projectMan = request.json.get('projectMan')
+        # time = request.json.get('time')
         # 添加文件
 
         # 查询是否已添加过项目(商议是否修改原项目)
@@ -242,17 +259,18 @@ def add_project():
 
             # 添加文件src
             project = Project(projectName=projectName,
-                              projectMan=projectMan, time=time)
+                              projectMan=projectMan, time=time, src=file_path)
             db.session.add(project)
             db.session.commit()
             project_id = project.projectNo
             static = 1
 
             # 添加返回文件src
-            return jsonify({'Projectid': project_id, 'static': static})
+            return jsonify({'Projectid': project_id, 'static': static, 'src': file_path})
         else:
             static = 0
             return jsonify({'static': static})
+
 
 # 添加/编辑项目文章页
 @app.route('/getProjectPage', methods=['GET', 'POST'])
@@ -279,22 +297,34 @@ def addPro_essay():
         print('sss')
         return '200'
     if request.method == 'POST':
-        id = request.json.get('id')
+        img = request.files.get('file')    # 获取上传的文件
+        file_path = ''
+        if img is None:
+            file_path = None
+        else:
+            num = len(ProjectEssay.query.all())
+            filename = str(num+1) + 'projectessay' + img.filename
+            file_path = UPLOAD_FOLDER+filename
+            img.save(file_path)
+
+        others = request.form['other']
+        others2 = json.loads(others)
+        id = others2.get('id')
         print(id)
         # pdb.set_trace()
         if id is None:            # 添加
             # pdb.set_trace()
-            projectid = request.json.get('projectid')
-            Pro_type = request.json.get('type')
-            Pro_title = request.json.get('title')
-            Pro_content = request.json.get('content')
-            Pro_time = request.json.get('time')
-            pro_EssayTit = request.json.get('pageTit')
-            new_essay = ProjectEssay(pro_title=Pro_title, pro_content=Pro_content, pro_updateTime=Pro_time,pro_type=Pro_type, projectNo=projectid, pro_EssayTit=pro_EssayTit)
+            projectid = others2.get('projectid')
+            Pro_type = others2.get('type')
+            Pro_title = others2.get('title')
+            Pro_content = others2.get('content')
+            Pro_time = others2.get('time')
+            pro_EssayTit = others2.get('pageTit')
+            new_essay = ProjectEssay(pro_title=Pro_title, pro_content=Pro_content, pro_updateTime=Pro_time,pro_type=Pro_type, projectNo=projectid, pro_EssayTit=pro_EssayTit, src=file_path)
             db.session.add(new_essay)
             db.session.commit()
             if new_essay.pro_essayNo > 0:
-                return jsonify({'static': 1})
+                return jsonify({'static': 1, 'src':file_path})
             else:
                 return jsonify({'static': 0})
         else:
@@ -443,30 +473,44 @@ def edit_member():
 # 添加成员
 @app.route('/addMember', methods=['POST'])
 def addMember():
-    #pdb.set_trace()
-    name = request.json.get('name')
-    college = request.json.get('college')
-    direction = request.json.get('direction')
-    language = request.json.get('language')
-    software = request.json.get('software')
-    id1 = request.json.get('id')
+    # pdb.set_trace()
+    img = request.files.get('file')    # 获取上传的文件
+    file_path = ''
+    if img is None:
+        file_path = None
+    else:
+        num = len(Member.query.all())
+        filename = str(num+1) + 'member' + img.filename
+        file_path = UPLOAD_FOLDER+filename
+        img.save(file_path)
+
+    others = request.form['other']
+    others2 = json.loads(others)
+    name = others2.get('name')
+    college = others2.get('college')
+    direction = others2.get('direction')
+    language = others2.get('language')
+    software = others2.get('software')
+    id1 = others2.get('id')
+
     languageAll = ''
     softwareAll = ''
     for i in range(len(language)):
         languageAll = languageAll + language[i] + ','
     for j in range(len(software)):
         softwareAll = softwareAll + software[j] + ','
-    experience = request.json.get('experience')
+    experience = others2.get('experience')
     if id1 is None:
         member = Member(memberName=name, academy=college, direction=direction,
-                        language=languageAll, software=softwareAll, experience=experience)
+                        language=languageAll, software=softwareAll, experience=experience, src=file_path)
         db.session.add(member)
         db.session.commit()
+        time.sleep(1)
         show_member = Member.query.filter(Member.memberName == name).first()
         # show_member = Member.query.filter(Member.memberNo == id).first()
         if show_member:
             static = 1
-            return jsonify({'static': static})
+            return jsonify({'static': static, 'src': file_path})
         else:
             static = 0
             return jsonify({'static': static})

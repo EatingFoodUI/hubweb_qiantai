@@ -8,14 +8,16 @@ endpoint = "/addMember"
 
 url = ''.join([host, endpoint])
 data = {
-    'name': 'alipapa',
-    'id': 32,
-    'college': 'd',
-    'direction': 'hao',
-    'language': ['cc','55','88'],
-    'software': ['55','66','22']
+    "name": "alipapa",
+    "id": 32,
+    "college": "d",
+    "direction": "hao",
+    "language": ["cc","55","88"],
+    "software": ["55","66","22"]
 }
 
 r = requests.post(url, json=data)
 response = r.json()
 print(response)
+
+s = '{"name": "alipapa","id": 32,"college": "d","direction": "hao","language": ["cc","55","88"],"software": ["55","66","22"]}'
