@@ -47,6 +47,8 @@ class Member(db.Model):
     experience = db.Column(db.String(150))
     # scr
     src = db.Column(db.String(50))
+    # 图片名
+    photo_name = db.Column(db.String(50))
 
     def show_all_member_to_json(self):
         # pdb.set_trace()
@@ -125,6 +127,8 @@ class ProjectEssay(db.Model):
     Project = db.relationship('Project', backref=db.backref('ProjectEsssay'))
     # scr
     src = db.Column(db.String(50))
+    # 照片
+    photo_name = db.Column(db.String(50))
 
     # 项目页显示文章
     def proEssay_to_json(self):
@@ -185,6 +189,8 @@ class Essay(db.Model):
     author = db.Column(db.String(8))
     # scr
     src = db.Column(db.String(50))
+    # 照片
+    photo_name = db.Column(db.String(50))
 
     # 显示文章转json使用
     def ShowEssay_to_json(self):
@@ -217,6 +223,8 @@ class Project(db.Model):
     time = db.Column(db.Date, default=datetime.date.today())
     # scr
     src = db.Column(db.String(50))
+    # 照片
+    photo_name = db.Column(db.String(50))
 
     # 项目主页转json使用
     def ProjectPage_need_to_json(self):

@@ -233,13 +233,7 @@ def add_project():
     if request.method == 'POST':
         img = request.files.get('file')    # 获取上传的文件
         file_path = ''
-        if img is None:
-            file_path = None
-        else:
-            num = len(Project.query.all())
-            filename = str(num+1) + img.filename
-            file_path = UPLOAD_FOLDER+filename
-            img.save(file_path)
+        filename = None
 
         others = request.form['other']
         others2 = json.loads(others)
@@ -255,8 +249,15 @@ def add_project():
         # 查询是否已添加过项目(商议是否修改原项目)
         ishas_project = Project.query.filter(
             Project.projectName == projectName).first()
+        id = ishas_project.projectNo
         if ishas_project is None:
-
+            if img is None:
+                file_path = None
+            else:
+                num = len(Project.query.all())
+                filename = str(num+1) + img.filename
+                file_path = UPLOAD_FOLDER+filename
+                img.save(file_path)
             # 添加文件src
             project = Project(projectName=projectName,
                               projectMan=projectMan, time=time, src=file_path)
@@ -268,8 +269,31 @@ def add_project():
             # 添加返回文件src
             return jsonify({'Projectid': project_id, 'static': static, 'src': file_path})
         else:
-            static = 0
-            return jsonify({'static': static})
+            if img is None:
+                file_path = None
+            else:
+                filename1 = str(id) + img.filename
+                project = Project.query.filter(Project.projectName == projectName).first()
+                project_name = project.photo_name
+                file_path = project.src
+                if filename1 == project_name:
+                    print('no photo change')
+                else:
+                    os.remove(file_path)
+                    file_path = UPLOAD_FOLDER+filename1
+                    img.save(file_path)
+                    filename = filename1
+                    project.photo_name = filename1
+                    project.src = file_path
+                    db.session.commit()
+            project = Project.query.filter(Project.projectName == projectName).first()
+            project.projectName = projectName
+            project.projectMan = projectMan
+            project.time = time
+            projectName = others2.get('projectName')
+            db.session.commit()
+            static = 1
+            return jsonify({'static': static, 'src': file_path})
 
 
 # 添加/编辑项目文章页
@@ -290,22 +314,14 @@ def edit_Proessay():
 def addPro_essay():
     Projectid = None
     Pro_type = None
-    print('555')
     if request.method == 'GET':
         Projectid = request.args.get('projectid')
         Pro_type = request.args.get('type')
-        print('sss')
         return '200'
     if request.method == 'POST':
         img = request.files.get('file')    # 获取上传的文件
         file_path = ''
-        if img is None:
-            file_path = None
-        else:
-            num = len(ProjectEssay.query.all())
-            filename = str(num+1) + 'projectessay' + img.filename
-            file_path = UPLOAD_FOLDER+filename
-            img.save(file_path)
+        filename = None
 
         others = request.form['other']
         others2 = json.loads(others)
@@ -314,6 +330,14 @@ def addPro_essay():
         # pdb.set_trace()
         if id is None:            # 添加
             # pdb.set_trace()
+            if img is None:
+                file_path = None
+            else:
+                num = len(ProjectEssay.query.all())
+                filename = str(num+1) + 'projectessay' + img.filename
+                file_path = UPLOAD_FOLDER+filename
+                img.save(file_path)
+
             projectid = others2.get('projectid')
             Pro_type = others2.get('type')
             Pro_title = others2.get('title')
@@ -328,6 +352,23 @@ def addPro_essay():
             else:
                 return jsonify({'static': 0})
         else:
+            if img is None:
+                file_path = None
+            else:
+                filename1 = str(id) + 'projectessay' + img.filename
+                projectessay = ProjectEssay.query.filter(ProjectEssay.pro_essayNo == pro_id).first()
+                file_name = projectessay.photo_name
+                file_path = projectessay.src
+                if file_name1 == file_name:
+                    print('no photo change')
+                else:
+                    os.remove(file_path)
+                    file_path = UPLOAD_FOLDER + filename1
+                    img.save(file_path)
+                    filename = filename1
+                    projectessay.photo_name = filename1
+                    projectessay.src = file_path
+                    db.session.commit()
             # pdb.set_trace()
             pro_id = request.json.get('id')
             pro_title = request.json.get('title')
@@ -348,7 +389,7 @@ def addPro_essay():
                 ProjectEssay.pro_essayNo == pro_id).first()
             if pro_essay.pro_updateTime == pro_time:
                 static = 1
-                return jsonify({'static': static})
+                return jsonify({'static': static, 'src': file_path})
             else:
                 static = 0
                 return jsonify({'static': static}) 
@@ -476,13 +517,7 @@ def addMember():
     # pdb.set_trace()
     img = request.files.get('file')    # 获取上传的文件
     file_path = ''
-    if img is None:
-        file_path = None
-    else:
-        num = len(Member.query.all())
-        filename = str(num+1) + 'member' + img.filename
-        file_path = UPLOAD_FOLDER+filename
-        img.save(file_path)
+    filename = None
 
     others = request.form['other']
     others2 = json.loads(others)
@@ -501,8 +536,16 @@ def addMember():
         softwareAll = softwareAll + software[j] + ','
     experience = others2.get('experience')
     if id1 is None:
+        if img is None:
+            file_path = None
+        else:
+            num = len(Member.query.all())
+            filename = str(num+1) + 'member' + img.filename
+            file_path = UPLOAD_FOLDER+filename
+            img.save(file_path)
+
         member = Member(memberName=name, academy=college, direction=direction,
-                        language=languageAll, software=softwareAll, experience=experience, src=file_path)
+                        language=languageAll, software=softwareAll, experience=experience, src=file_path, photo_name=filename)
         db.session.add(member)
         db.session.commit()
         time.sleep(1)
@@ -515,6 +558,24 @@ def addMember():
             static = 0
             return jsonify({'static': static})
     else:
+        if img is None:
+            file_path = None
+        # 上传有图片但相同
+        else:
+            filename1 = str(id1) + 'member' + img.filename
+            member = Member.query.filter(Member.memberNo == id1).first()
+            member_name = member.photo_name
+            file_path = member.src
+            if filename1 == member_name:
+                print('no photo change')
+            else:
+                os.remove(file_path)
+                file_path = UPLOAD_FOLDER+filename1
+                img.save(file_path)
+                filename = filename1
+                member.photo_name = filename1
+                member.src = file_path
+                db.session.commit()
         # member = session.query(Member).filter(Member.memberNo == id1).one()
         # pdb.set_trace()
         member = Member.query.filter(Member.memberNo == id1).first()
@@ -526,7 +587,7 @@ def addMember():
         member.experience = experience
         db.session.commit()
         static = 1
-        return jsonify({'static': static})
+        return jsonify({'static': static, 'src': file_path})
 
 
 # 上传文件
