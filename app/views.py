@@ -11,13 +11,15 @@ from flask import make_response
 from flask import render_template, send_from_directory
 import os
 import time
+import uuid
+from .config import DEFAULT_PHOTO_PATH, DEFAULT_PHOTO
 # 可增减next[]参数的功能，实现重定向会登录的地方
-  
+
 
 @app.after_request
-def af_request(resp):     
+def af_request(resp):
     """
-    #请求钩子，在所有的请求发生后执行，加入headers。
+    # 请求钩子，在所有的请求发生后执行，加入headers。
     :param resp:
     :return:
     """
@@ -50,7 +52,8 @@ def show_photo(filename):
         else:
             if filename == '2.png':
                 filename = '2.jpg'
-            image_data = open(os.path.join('/usr/hubweb_qiantai/app/templates/static/img/', '%s' % filename), "rb").read()
+            image_data = open(os.path.join(
+                '/usr/hubweb_qiantai/app/templates/static/img/', '%s' % filename), "rb").read()
             response = make_response(image_data)
             response.headers['Content-Type'] = 'image/png'
             return response
@@ -67,7 +70,8 @@ def showphoto(filename):
         else:
             if filename == '2.png':
                 filename = '2.jpg'
-            image_data = open(os.path.join('/usr/hubweb_qiantai/app/templates/up_photo/', '%s' % filename), "rb").read()
+            image_data = open(os.path.join(
+                '/usr/hubweb_qiantai/app/templates/up_photo/', '%s' % filename), "rb").read()
             response = make_response(image_data)
             response.headers['Content-Type'] = 'image/png'
             return response
@@ -80,7 +84,7 @@ def showphoto(filename):
 def login():
     if request.method == 'GET':
         # 测试
-        response = jsonify({'username': 'liyonglin', 'password': '123456'})
+        response = jsonify({'username': 'ad', 'password': '123456'})
         return response
     if request.method == 'POST':
         now_username = request.json['username']
@@ -141,19 +145,21 @@ def ProjectPage():
     # import pdb
     # pdb.set_trace()
     if time == '一个月之前':
-        time = Now_time + datetime.timedelta(days=-30)        # 将来可能需要修改，此处只改到10年前
+        # 将来可能需要修改，此处只改到10年前
+        time = Now_time + datetime.timedelta(days=-30)
         time2 = Now_time + datetime.timedelta(days=-3650)
-        project = Project.query.order_by(Project.time.asc()).filter(and_(Project.time.between(time2, time), Project.projectName.like('%'+name+'%'))).all()
+        project = Project.query.order_by(Project.time.asc()).filter(and_(
+            Project.time.between(time2, time), Project.projectName.like('%'+name+'%'))).all()
         all_page = math.ceil((float(len(project))/8))
         totalAll = len(project)
         turn_to_json = []
         for i in range(0, 8):
             try:
-                one_json = project[8*(int(page)-1)+i].ProjectPage_need_to_json()
+                one_json = project[8*(int(page)-1) + i].ProjectPage_need_to_json()
                 turn_to_json.append(one_json)
             except Exception:
                 print('')
-        return jsonify({'list': turn_to_json, 'total': allpage, 'totalAll': totalAll})
+        return jsonify({'list': turn_to_json, 'total': all_page, 'totalAll': totalAll})
     # 考虑修改
     elif time == '昨天':
         time = Now_time + datetime.timedelta(days=-1)
@@ -163,8 +169,11 @@ def ProjectPage():
         time = Now_time + datetime.timedelta(days=-7)
     elif time == '一个月内':
         time = Now_time + datetime.timedelta(days=-30)
-    project = Project.query.order_by(Project.time.asc()).filter(and_(Project.time.between(time, Now_time), Project.projectName.like('%'+name+'%'))).all()
+    project = Project.query.order_by(Project.time.asc()).filter(and_(
+        Project.time.between(time, Now_time), Project.projectName.like('%'+name+'%'))).all()
+    # all_page 页数
     all_page = math.ceil((float(len(project))/8))
+    # 总数
     totalAll = len(project)
     turn_to_json = []
     # for i in project:
@@ -173,11 +182,11 @@ def ProjectPage():
     # project1 = Project.query.all()
     # page = 1
     for i in range(0, 8):
-       try:
-           one_json = project[8*(int(page)-1)+i].ProjectPage_need_to_json()
-           turn_to_json.append(one_json)
-       except Exception:
-           print('')
+        try:
+            one_json = project[8*(int(page)-1)+i].ProjectPage_need_to_json()
+            turn_to_json.append(one_json)
+        except Exception:
+            print('')
     return jsonify({'list': turn_to_json, 'total': all_page, 'totalAll': totalAll})
     
 
@@ -231,10 +240,11 @@ def add_project():
     if request.method == 'GET':
         return '200'
     if request.method == 'POST':
+        # pdb.set_trace()
         img = request.files.get('file')    # 获取上传的文件
         file_path = ''
         filename = None
-
+        
         others = request.form['other']
         others2 = json.loads(others)
         projectName = others2.get('projectName')
@@ -249,10 +259,11 @@ def add_project():
         # 查询是否已添加过项目(商议是否修改原项目)
         ishas_project = Project.query.filter(
             Project.projectName == projectName).first()
-        id = ishas_project.projectNo
+        # id = ishas_project.projectNo
         if ishas_project is None:
             if img is None:
-                file_path = None
+                file_path = DEFAULT_PHOTO_PATH
+                filename = DEFAULT_PHOTO
             else:
                 num = len(Project.query.all())
                 filename = str(num+1) + img.filename
@@ -260,7 +271,7 @@ def add_project():
                 img.save(file_path)
             # 添加文件src
             project = Project(projectName=projectName,
-                              projectMan=projectMan, time=time, src=file_path)
+                              projectMan=projectMan, time=time, src=file_path, photo_name=filename)
             db.session.add(project)
             db.session.commit()
             project_id = project.projectNo
@@ -269,6 +280,7 @@ def add_project():
             # 添加返回文件src
             return jsonify({'Projectid': project_id, 'static': static, 'src': file_path})
         else:
+            id = ishas_project.projectNo
             if img is None:
                 file_path = None
             else:
@@ -278,6 +290,13 @@ def add_project():
                 file_path = project.src
                 if filename1 == project_name:
                     print('no photo change')
+                elif project_name == DEFAULT_PHOTO:
+                    file_path = UPLOAD_FOLDER+filename1
+                    img.save(file_path)
+                    filename = filename1
+                    project.photo_name = filename1
+                    project.src = file_path
+                    db.session.commit()
                 else:
                     os.remove(file_path)
                     file_path = UPLOAD_FOLDER+filename1
@@ -331,7 +350,8 @@ def addPro_essay():
         if id is None:            # 添加
             # pdb.set_trace()
             if img is None:
-                file_path = None
+                file_path = DEFAULT_PHOTO_PATH
+                filename = DEFAULT_PHOTO
             else:
                 num = len(ProjectEssay.query.all())
                 filename = str(num+1) + 'projectessay' + img.filename
@@ -359,8 +379,15 @@ def addPro_essay():
                 projectessay = ProjectEssay.query.filter(ProjectEssay.pro_essayNo == pro_id).first()
                 file_name = projectessay.photo_name
                 file_path = projectessay.src
-                if file_name1 == file_name:
+                if filename1 == file_name:
                     print('no photo change')
+                elif file_name == DEFAULT_PHOTO:
+                    file_path = UPLOAD_FOLDER+filename1
+                    img.save(file_path)
+                    filename = filename1
+                    projectessay.photo_name = filename1
+                    projectessay.src = file_path
+                    db.session.commit()
                 else:
                     os.remove(file_path)
                     file_path = UPLOAD_FOLDER + filename1
@@ -393,6 +420,7 @@ def addPro_essay():
             else:
                 static = 0
                 return jsonify({'static': static}) 
+
 
 # 文章页面
 @app.route('/getAllPage')
@@ -449,6 +477,7 @@ def show_essay():
         # one_json = essay_sum[i].ShowEssay_to_json()
         # turn_to_json.append(one_json)
     return jsonify({'total': allpage, 'pageAll': turn_to_json, 'totalAll':totalAll})
+
 
 # 编辑/添加文章
 @app.route('/getCommonPage', methods=['GET', 'POST'])
@@ -526,6 +555,7 @@ def addMember():
     direction = others2.get('direction')
     language = others2.get('language')
     software = others2.get('software')
+    # 是否是已知成员
     id1 = others2.get('id')
 
     languageAll = ''
@@ -535,9 +565,14 @@ def addMember():
     for j in range(len(software)):
         softwareAll = softwareAll + software[j] + ','
     experience = others2.get('experience')
+    # 添加成员
     if id1 is None:
+        # 没有上传图片
         if img is None:
-            file_path = None
+            # 添加成默认
+            file_path = DEFAULT_PHOTO_PATH
+            filename = DEFAULT_PHOTO
+        # 有上传图片
         else:
             num = len(Member.query.all())
             filename = str(num+1) + 'member' + img.filename
@@ -548,7 +583,8 @@ def addMember():
                         language=languageAll, software=softwareAll, experience=experience, src=file_path, photo_name=filename)
         db.session.add(member)
         db.session.commit()
-        time.sleep(1)
+        # time.sleep(1)
+        # 是否添加成员成功
         show_member = Member.query.filter(Member.memberName == name).first()
         # show_member = Member.query.filter(Member.memberNo == id).first()
         if show_member:
@@ -557,17 +593,28 @@ def addMember():
         else:
             static = 0
             return jsonify({'static': static})
+    # 修改成员信息
     else:
+        # 没有上传图片，不修改
         if img is None:
             file_path = None
-        # 上传有图片但相同
         else:
             filename1 = str(id1) + 'member' + img.filename
             member = Member.query.filter(Member.memberNo == id1).first()
             member_name = member.photo_name
             file_path = member.src
+            # 上传有图片但相同
             if filename1 == member_name:
                 print('no photo change')
+            # 如果是默认图片，不删除图片，直接改图片
+            elif member_name == DEFAULT_PHOTO:
+                file_path = UPLOAD_FOLDER+filename1
+                img.save(file_path)
+                filename = filename1
+                member.photo_name = filename1
+                member.src = file_path
+                db.session.commit()
+            # 不是默认图片
             else:
                 os.remove(file_path)
                 file_path = UPLOAD_FOLDER+filename1
@@ -591,7 +638,7 @@ def addMember():
 
 
 # 上传文件
-@app.route('/addImg', methods=['OPTIONS', 'POST'])
+@app.route('/addImg', methods=['POST'])
 def up_picture():
     img = request.files.get('file')    # 获取上传的文件
     pdb.set_trace()
@@ -607,3 +654,25 @@ def up_picture():
     else:
         static = 0
         return jsonify({'static': static})
+
+
+# 上传文章图片
+@app.route('/essayPhoto', methods=['POST'])
+def essayPhoto():
+    # pdb.set_trace()
+    img = request.files.get('img')    # 获取上传的文件
+    file_path = ''
+    filename = None
+    # img = 
+    
+    # others = request.form['other']
+    # others2 = json.loads(others)
+    # name = others2.get('id')
+    photo_name = img.filename
+    filename = str(uuid.uuid1()) + photo_name
+    file_path = UPLOAD_FOLDER+filename
+    img.save(file_path)
+
+    static = 1
+    return jsonify({'static': static, 'src': file_path, 'filename': filename})
+

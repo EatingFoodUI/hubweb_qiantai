@@ -9,8 +9,10 @@ import json
 # }
 
 
-url = 'httP://119.23.233.196:1234/addImg'
-files = {'filename': '5' ,'images': open('/home/liyongli/图片/201811052349395be066931102.JPG', 'rb')}
+# url = 'httP://119.23.233.196:1234/addImg'
+url = 'httP://211.83.223.67:5000/addImg'
+# files = {'filename': '5' ,'images': open('/home/liyongli/图片/201811052349395be066931102.JPG', 'rb')}
+files = {'images': open('/home/liyongli/图片/201811052349395be066931102.JPG', 'rb')}
 headers = {
     'Api-Key':
     'InhpeWFuZzA4MDdJBtx4AWlPpI_Oxx1Ki8',

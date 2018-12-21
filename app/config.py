@@ -11,3 +11,7 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:469337451@qq.com@127.0.0.1/hubpa
 
 # 配置session
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(weeks=7)
+
+# 默认照片地址
+DEFAULT_PHOTO_PATH = '/usr/hubweb_qiantai/app/templates/up_photo/defultforanything.jpeg'
+DEFAULT_PHOTO = 'defultforanything.jpeg'
