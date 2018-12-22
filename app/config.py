@@ -9,6 +9,7 @@ SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:469337451@qq.com@127.0.0.1/hubpa
 # 迁移数据库使用
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog-dev.sql')
 
+# ceshi
 # 配置session
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(weeks=7)
 
