@@ -127,3 +127,4 @@ uwsgi.ini
 /app/blog-dev.sql
 /app/config.py
 /copy/
+/app/templates/
