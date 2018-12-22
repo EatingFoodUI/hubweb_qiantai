@@ -124,7 +124,5 @@ uwsgi.ini
 学习问题.txt
 /test/
 /migration/
-/copy/
-/app/template/
 /app/blog-dev.sql
 /app/config.py
