@@ -126,3 +126,5 @@ uwsgi.ini
 /migrations/
 /app/blog-dev.sql
 /app/config.py
+/copy/
+/app/templates/
