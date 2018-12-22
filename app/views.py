@@ -333,69 +333,32 @@ def edit_Proessay():
 def addPro_essay():
     Projectid = None
     Pro_type = None
+    print('555')
     if request.method == 'GET':
         Projectid = request.args.get('projectid')
         Pro_type = request.args.get('type')
+        print('sss')
         return '200'
     if request.method == 'POST':
-        img = request.files.get('file')    # 获取上传的文件
-        file_path = ''
-        filename = None
-
-        others = request.form['other']
-        others2 = json.loads(others)
-        id = others2.get('id')
+        id = request.json.get('id')
         print(id)
         # pdb.set_trace()
         if id is None:            # 添加
             # pdb.set_trace()
-            if img is None:
-                file_path = DEFAULT_PHOTO_PATH
-                filename = DEFAULT_PHOTO
-            else:
-                num = len(ProjectEssay.query.all())
-                filename = str(num+1) + 'projectessay' + img.filename
-                file_path = UPLOAD_FOLDER+filename
-                img.save(file_path)
-
-            projectid = others2.get('projectid')
-            Pro_type = others2.get('type')
-            Pro_title = others2.get('title')
-            Pro_content = others2.get('content')
-            Pro_time = others2.get('time')
-            pro_EssayTit = others2.get('pageTit')
-            new_essay = ProjectEssay(pro_title=Pro_title, pro_content=Pro_content, pro_updateTime=Pro_time,pro_type=Pro_type, projectNo=projectid, pro_EssayTit=pro_EssayTit, src=file_path)
+            projectid = request.json.get('projectid')
+            Pro_type = request.json.get('type')
+            Pro_title = request.json.get('title')
+            Pro_content = request.json.get('content')
+            Pro_time = request.json.get('time')
+            pro_EssayTit = request.json.get('pageTit')
+            new_essay = ProjectEssay(pro_title=Pro_title, pro_content=Pro_content, pro_updateTime=Pro_time,pro_type=Pro_type, projectNo=projectid, pro_EssayTit=pro_EssayTit)
             db.session.add(new_essay)
             db.session.commit()
             if new_essay.pro_essayNo > 0:
-                return jsonify({'static': 1, 'src':file_path})
+                return jsonify({'static': 1})
             else:
                 return jsonify({'static': 0})
         else:
-            if img is None:
-                file_path = None
-            else:
-                filename1 = str(id) + 'projectessay' + img.filename
-                projectessay = ProjectEssay.query.filter(ProjectEssay.pro_essayNo == pro_id).first()
-                file_name = projectessay.photo_name
-                file_path = projectessay.src
-                if filename1 == file_name:
-                    print('no photo change')
-                elif file_name == DEFAULT_PHOTO:
-                    file_path = UPLOAD_FOLDER+filename1
-                    img.save(file_path)
-                    filename = filename1
-                    projectessay.photo_name = filename1
-                    projectessay.src = file_path
-                    db.session.commit()
-                else:
-                    os.remove(file_path)
-                    file_path = UPLOAD_FOLDER + filename1
-                    img.save(file_path)
-                    filename = filename1
-                    projectessay.photo_name = filename1
-                    projectessay.src = file_path
-                    db.session.commit()
             # pdb.set_trace()
             pro_id = request.json.get('id')
             pro_title = request.json.get('title')
@@ -416,10 +379,11 @@ def addPro_essay():
                 ProjectEssay.pro_essayNo == pro_id).first()
             if pro_essay.pro_updateTime == pro_time:
                 static = 1
-                return jsonify({'static': static, 'src': file_path})
+                return jsonify({'static': static})
             else:
                 static = 0
                 return jsonify({'static': static}) 
+
 
 
 # 文章页面
