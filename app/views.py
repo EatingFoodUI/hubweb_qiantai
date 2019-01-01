@@ -131,7 +131,7 @@ def login():
 
 
 # 项目主页
-@app.route('/getProject', methods=['GET'])
+@app.route('/getProject', methods=['GET', 'POST'])
 def ProjectPage():
     # 项目名称，项目负责人，项目时间，具体页面
     name = request.args.get('name').strip('\'')
@@ -191,7 +191,7 @@ def ProjectPage():
     
 
 # 返回所有项目文章
-@app.route('/getAllProject')
+@app.route('/getAllProject', methods=['GET', 'POST'])
 def getAllPage():
     project = Project.query.all()
     all = len(project)
@@ -203,7 +203,7 @@ def getAllPage():
 
 
 # 项目下的文章显示界面
-@app.route('/getTypeProject')
+@app.route('/getTypeProject', methods=['GET', 'POST'])
 def show_project_essay():
     # pdb.set_trace()
     ProjectId = int(request.args.get('Projectid'))
@@ -387,7 +387,7 @@ def addPro_essay():
 
 
 # 文章页面
-@app.route('/getAllPage')
+@app.route('/getAllPage', methods=['GET', 'POST'])
 def show_essay():
     title = request.args.get('title').strip('\'')
     # author = request.args.get('author')
@@ -471,7 +471,7 @@ def edit_essay():
 
 
 # 显示实验室成员
-@app.route('/getMember')
+@app.route('/getMember', methods=['GET', 'POST'])
 def show_hubMember():
     # pdb.set_trace()
     name = request.args.get('name').strip('\'')
@@ -496,7 +496,7 @@ def show_hubMember():
 
 
 # 成员编辑
-@app.route('/editMember')
+@app.route('/editMember', methods=['GET', 'POST'])
 def edit_member():
     memberId = request.args.get('id')
     show_member = Member.query.filter(Member.memberNo == memberId).first()
@@ -640,3 +640,5 @@ def essayPhoto():
     static = 1
     return jsonify({'static': static, 'src': file_path, 'filename': filename})
 
+
+# 上传压缩文件

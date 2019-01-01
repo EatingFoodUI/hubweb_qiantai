@@ -6,6 +6,7 @@ import os
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 import pymysql
+from flask_compress import Compress
 from flask_cors import *
 
 
@@ -15,9 +16,15 @@ app.debug = True
 app.secret_key = "welecome to hubwebpage"
 app.config.from_pyfile('config.py', silent=True)
 
+app.config['COMPRESS_MIMETYPES'] = ['text/html', 'text/css', 'text/xml',
+                                    'application/json', 'application/javascript',
+                                    'image/png']
+app.config['COMPRESS_MIN_SIZE'] = 50
+
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 bootstrap = Bootstrap(app)
+Compress(app)
 CORS(app, supports_credentials=True)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -32,6 +39,7 @@ from .models import User, Member, Essay, Project
 migrate = Migrate(app, db)
 
 manager = Manager(app)
+
 
 
 def make_shell_context():
